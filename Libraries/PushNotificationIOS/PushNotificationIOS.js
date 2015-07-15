@@ -106,7 +106,7 @@ class PushNotificationIOS {
       listener =  RCTDeviceEventEmitter.addListener(
         DEVICE_NOTIF_EVENT,
         (notifData) => {
-          handler(new PushNotificationIOS({...notifData, _type: type}));
+          handler(new PushNotificationIOS(notifData));
         }
       );
     } else if (type === 'register') {
@@ -120,7 +120,7 @@ class PushNotificationIOS {
       _notifHandlers[handler] = RCTDeviceEventEmitter.addListener(
         DEVICE_LOCAL_NOTIF_EVENT,
         (notifData) => {
-          handler(new PushNotificationIOS({...notifData, _type: type}));
+          handler(new PushNotificationIOS(notifData));
         }
       );
     }
