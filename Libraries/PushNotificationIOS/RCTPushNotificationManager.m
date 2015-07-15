@@ -190,18 +190,18 @@ RCT_EXPORT_METHOD(requestPermissions:(NSDictionary *)permissions)
     types = UIUserNotificationTypeAlert | UIUserNotificationTypeBadge | UIUserNotificationTypeSound;
   }
 
-#if __IPHONE_OS_VERSION_MIN_REQUIRED >= __IPHONE_8_0
-
-  id notificationSettings = [UIUserNotificationSettings settingsForTypes:types categories:nil];
-  [[UIApplication sharedApplication] registerUserNotificationSettings:notificationSettings];
-  [[UIApplication sharedApplication] registerForRemoteNotifications];
-
-#else
-
-  [[UIApplication sharedApplication] registerForRemoteNotificationTypes:types];
-
-#endif
-
+  // This code will work in iOS 8.0 xcode 6.0 or later:
+  if ([[[UIDevice currentDevice] systemVersion] floatValue] >= 8.0)
+  {
+    id notificationSettings = [UIUserNotificationSettings settingsForTypes:types categories:nil];
+    [[UIApplication sharedApplication] registerUserNotificationSettings:notificationSettings];
+    [[UIApplication sharedApplication] registerForRemoteNotifications];
+  }
+  // This code will work in iOS 7.0 and below:
+  else
+  {
+    [[UIApplication sharedApplication] registerForRemoteNotificationTypes:types];
+  }
 }
 
 RCT_EXPORT_METHOD(abandonPermissions)
