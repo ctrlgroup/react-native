@@ -1,0 +1,21 @@
+# Runs Iodine-Start build and tests.
+machine:
+  xcode:
+    version: "6.3.1"
+
+dependencies:
+  pre:
+    - brew install flow nvm watchman
+    - mkdir -p ~/.nvm
+    - export NVM_DIR=~/.nvm
+    - source $(brew --prefix nvm)/nvm.sh
+    - nvm install iojs
+    - nvm use iojs
+
+test:
+  override:
+     - (./scripts/objc-test.sh):
+         timeout: 300
+
+
+
