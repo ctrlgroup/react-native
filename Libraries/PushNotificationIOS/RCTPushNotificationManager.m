@@ -104,8 +104,21 @@ RCT_EXPORT_MODULE()
                                                     userInfo:userInfo];
 }
 
-+ (void)application:(__unused UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)userInfo
++ (void)application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)inputUserInfo
 {
+  
+  NSMutableDictionary *userInfo = [NSMutableDictionary dictionaryWithDictionary:inputUserInfo];
+  if (application.applicationState == UIApplicationStateActive)
+  {
+    // Indicate that this was sent while the application was in the background
+    [userInfo setObject: @"active" forKey: @"applicationState"];
+  }
+  else
+  {
+    // Indicate that this was sent while the application was in the background
+    [userInfo setObject: @"background" forKey: @"applicationState"];
+  }
+  
   [[NSNotificationCenter defaultCenter] postNotificationName:RCTRemoteNotificationReceived
                                                       object:self
                                                     userInfo:userInfo];
@@ -123,7 +136,7 @@ RCT_EXPORT_MODULE()
                                               body:[notification userInfo]];
 }
 
-+ (void)application:(__unused UIApplication *)application didReceiveLocalNotification:(UILocalNotification *)localNotification
++ (void)application:(UIApplication *)application didReceiveLocalNotification:(UILocalNotification *)localNotification
 {
   NSDictionary *baseNotificationData = @{
     @"aps": @{
@@ -135,14 +148,22 @@ RCT_EXPORT_MODULE()
   };
 
   NSMutableDictionary *notificationData = [NSMutableDictionary dictionaryWithDictionary:baseNotificationData];
-
+  if (application.applicationState == UIApplicationStateActive)
+  {
+    // Indicate that this was sent while the application was in the background
+    [notificationData setObject: @"active" forKey: @"applicationState"];
+  }
+  else
+  {
+    // Indicate that this was sent while the application was in the background
+    [notificationData setObject: @"background" forKey: @"applicationState"];
+  }
+  
   if (localNotification.fireDate) {
     [notificationData setObject:[NSString stringWithFormat:@"%d",(int)[localNotification.fireDate timeIntervalSince1970]]
                          forKey: @"fireDate"];
   }
 
-  // Note: repeatInterval has been intentionally left out because it is not currently used
-  // [notificationData setObject:localNotification.repeatInterval forKey:@"repeatInterval"];
 
   [[NSNotificationCenter defaultCenter] postNotificationName:RCTLocalNotificationReceived
                                                       object:self
