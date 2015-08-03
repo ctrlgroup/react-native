@@ -78,7 +78,16 @@ RCT_EXPORT_MODULE()
 - (void)setBridge:(RCTBridge *)bridge
 {
   _bridge = bridge;
-  _initialNotification = [bridge.launchOptions[UIApplicationLaunchOptionsRemoteNotificationKey] copy];
+
+  if (bridge.launchOptions[UIApplicationLaunchOptionsRemoteNotificationKey]) {
+    _initialNotification =
+      [bridge.launchOptions[UIApplicationLaunchOptionsRemoteNotificationKey] copy];
+  } else if (bridge.launchOptions[UIApplicationLaunchOptionsLocalNotificationKey]) {
+    UILocalNotification *localNotification =
+      [bridge.launchOptions[UIApplicationLaunchOptionsLocalNotificationKey] copy];
+
+    _initialNotification = [RCTPushNotificationManager extractLocalNotificationData:localNotification];
+  }
 }
 
 + (void)application:(__unused UIApplication *)application didRegisterUserNotificationSettings:(__unused UIUserNotificationSettings *)notificationSettings
@@ -136,8 +145,9 @@ RCT_EXPORT_MODULE()
                                               body:[notification userInfo]];
 }
 
-+ (void)application:(UIApplication *)application didReceiveLocalNotification:(UILocalNotification *)localNotification
++ (NSDictionary*)extractLocalNotificationData:(UILocalNotification *)localNotification
 {
+
   NSDictionary *baseNotificationData = @{
     @"aps": @{
       @"alert": localNotification.alertBody,
@@ -146,7 +156,20 @@ RCT_EXPORT_MODULE()
     },
     @"userInfo": localNotification.userInfo
   };
+  
+  NSMutableDictionary *notificationData = [NSMutableDictionary dictionaryWithDictionary:baseNotificationData];
 
+  if (localNotification.fireDate) {
+    [notificationData setObject:[NSString stringWithFormat:@"%d",(int)[localNotification.fireDate timeIntervalSince1970]]
+                         forKey: @"fireDate"];
+  }
+
+  return notificationData;
+}
+
++ (void)application:(UIApplication *)application didReceiveLocalNotification:(UILocalNotification *)localNotification
+{
+  NSDictionary *baseNotificationData = [RCTPushNotificationManager extractLocalNotificationData:localNotification];
   NSMutableDictionary *notificationData = [NSMutableDictionary dictionaryWithDictionary:baseNotificationData];
   if (application.applicationState == UIApplicationStateActive)
   {
@@ -158,12 +181,6 @@ RCT_EXPORT_MODULE()
     // Indicate that this was sent while the application was in the background
     [notificationData setObject: @"background" forKey: @"applicationState"];
   }
-  
-  if (localNotification.fireDate) {
-    [notificationData setObject:[NSString stringWithFormat:@"%d",(int)[localNotification.fireDate timeIntervalSince1970]]
-                         forKey: @"fireDate"];
-  }
-
 
   [[NSNotificationCenter defaultCenter] postNotificationName:RCTLocalNotificationReceived
                                                       object:self
