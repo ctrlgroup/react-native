@@ -396,9 +396,6 @@ static void RCTProcessMetaProps(const float metaProps[META_PROP_COUNT], float st
 
 - (BOOL)isLayoutOnly
 {
-  // NOTE(brentvatne): Temporarily disable layout only view nodes
-  return NO;
-
   if (![self.viewName isEqualToString:@"RCTView"]) {
     // For now, only `RCTView`s can be layout-only.
     return NO;
