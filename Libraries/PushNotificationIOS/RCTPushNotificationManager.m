@@ -36,6 +36,7 @@ NSString *const RCTLocalNotificationReceived = @"LocalNotificationReceived";
   UILocalNotification *notification = [[UILocalNotification alloc] init];
   notification.fireDate = [RCTConvert NSDate:details[@"fireDate"]] ?: [NSDate date];
   notification.alertBody = [RCTConvert NSString:details[@"alertBody"]] ?: nil;
+  notification.soundName = [RCTConvert NSString:details[@"soundName"]] ?: nil;
   notification.userInfo = [RCTConvert NSDictionary:details[@"userInfo"]] ?: nil;
   return notification;
 }
@@ -151,12 +152,12 @@ RCT_EXPORT_MODULE()
   NSDictionary *baseNotificationData = @{
     @"aps": @{
       @"alert": localNotification.alertBody,
-      @"sound": @"",
+      @"sound": localNotification.soundName,
       @"badge": @0
     },
     @"userInfo": localNotification.userInfo
   };
-  
+
   NSMutableDictionary *notificationData = [NSMutableDictionary dictionaryWithDictionary:baseNotificationData];
 
   if (localNotification.fireDate) {
