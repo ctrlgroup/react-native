@@ -152,7 +152,7 @@ RCT_EXPORT_MODULE()
   NSDictionary *baseNotificationData = @{
     @"aps": @{
       @"alert": localNotification.alertBody,
-      @"sound": localNotification.soundName,
+      @"sound": localNotification.soundName?: @"",
       @"badge": @0
     },
     @"userInfo": localNotification.userInfo
